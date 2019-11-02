@@ -1,0 +1,251 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="UTF-8">
+    <title>ping pong</title>
+    <link rel="stylesheet" type="text/css" href="ping pong.css">
+
+    </head>
+
+    <body onload="" onkeydown="movepong(event)" onclick="mouseclick(event)">
+
+        <canvas id="myCanvas" width="1350" height="600"></canvas>
+        <p id="start_lable">press any key to start. i for instructions</p>
+        <p id="score"><span id="right_score"></span> : <span id="left_score"></span></p>
+        
+        <link href="https://fonts.googleapis.com/css?family=Electrolize&display=swap" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
+        
+        <script>
+            var canvas = document.getElementById("myCanvas");
+            var ctx = canvas.getContext("2d");
+            var game_on = false;
+            var right_score = 0;
+            var left_score = 0;
+
+            document.getElementById("score").style.visibility = "hidden";
+            //==========================BALL======================================
+            var ballcolor = "#0095DD";
+            var x = canvas.width / 2;
+            var y = canvas.height / 2;
+
+            var dx = +2;
+            var dy = -2;
+
+            function drawBall() {
+                ctx.beginPath();
+                ctx.arc(x, y, 10, 0, Math.PI * 2);
+                ctx.fillStyle = ballcolor;
+                ctx.fill();
+                ctx.closePath();
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawBall();
+                drawPaddle_left();
+                drawPaddle_right();
+                check_gameover();
+                //===========//colision===================
+                if (x + dx < 20) {//ball touch paddle left
+                    if (y > paddle_left_Y && y < paddle_left_Y + 100) {
+                        dx = Math.abs(getRndSpeed());
+                        ballcolor = get_rnd_color();
+                        var audio = new Audio();
+                        audio.src = "sounds/pong.mp3"
+                        audio.play();
+                    }
+                }
+                if (x + dx > canvas.width - 20) {//ball touch paddle
+                    if (y > paddle_right_Y && y < paddle_right_Y + 100) {
+                        dx = -1 * Math.abs(getRndSpeed());
+                        ballcolor = get_rnd_color();
+                        var audio = new Audio();
+                        audio.src = "sounds/pong.mp3"
+                        audio.play();
+                    }
+                }
+                if (x + dx > canvas.width - 10) {// ball border touch
+                    left_score += 1;
+                    updatescore()
+                    //alert("GAME OVER -left paddle won");
+                    //game_on = false;
+                    //document.location.reload();
+                    //clearInterval(interval);
+                    dx = -dx;
+                }
+                else if (x + dx < 10) {// ball border touch
+                    right_score += 1;
+                    updatescore()
+                    //alert("GAME OVER - right paddle won");
+                    //game_on = false;
+                    //document.location.reload();
+                    //clearInterval(interval);
+                    dx = -dx;
+                }
+                if (y + dy > canvas.height - 10 || y + dy < 10) {
+                    dy = -dy;
+                }
+
+                x += dx;
+                y += dy;
+
+                // BORDER PADDLE LEFT
+                if (UPPressed_LEFTpong) {
+                    paddle_left_Y += 2;
+                    if (paddle_left_Y + 100 > canvas.height) {
+                        paddle_left_Y = canvas.height - 100;
+                    }
+                }
+                else if (DOWNPressed_LEFTpong) {
+                    paddle_left_Y -= 2;
+                    if (paddle_left_Y < 0) {
+                        paddle_left_Y = 0;
+                    }
+
+                }//==============================
+
+                // BORDER PADDLE RIGHT
+                if (UPPressed_rightpong) {
+                    paddle_right_Y += 2;
+                    if (paddle_right_Y + 100 > canvas.height) {
+                        paddle_right_Y = canvas.height - 100;
+                    }
+                }
+                if (DOWNPressed_rightpong) {
+                    paddle_right_Y -= 2;
+                    if (paddle_right_Y < 0) {
+                        paddle_right_Y = 0;
+                    }
+                }
+
+
+
+            }
+
+            //==================================================================
+            //==========================PADELS======================================
+
+            var paddle_left_Y = (canvas.height - 10) / 2;
+            var paddle_right_Y = (canvas.height - 10) / 2;
+
+            function drawPaddle_left() {
+                ctx.beginPath();
+                ctx.rect(10, paddle_left_Y, 10, 100);
+                ctx.fillStyle = "#0095DD";
+                ctx.fill();
+                ctx.closePath();
+            }
+
+            function drawPaddle_right() {
+                ctx.beginPath();
+                ctx.rect(canvas.width - 20, paddle_right_Y, 10, 100);
+                ctx.fillStyle = "#0095DD";
+                ctx.fill();
+                ctx.closePath();
+            }
+
+            function mouseclick() {
+                //var x = event.clientX;     // Get the horizontal coordinate
+                //var y = event.clientY;     // Get the vertical coordinate
+                //var coor = "X coords: " + x + ", Y coords: " + y;
+                //alert(coor)
+            }
+
+
+            var UPPressed_rightpong = false;
+            var DOWNPressed_rightpong = false;
+
+            var UPPressed_LEFTpong = false;
+            var DOWNPressed_LEFTpong = false;
+
+            function movepong(event) {
+                if (game_on == false && event.keyCode != 73) {
+                    document.getElementById("start_lable").style.visibility = "hidden";
+                    setInterval(draw, 10);
+                    game_on = true;
+                    document.getElementById("score").style.visibility = "visible";
+                    updatescore()
+                }
+                if (game_on == false && event.keyCode == 73) {                                         
+                    Swal.fire({                       
+                        title: 'simple ping pong game ',
+                        text: 'right: w-up , s-down ,a-stay || left: I-up , K-down ,L-stay',                      
+                    })
+                }
+                if (event.keyCode == 83) {//up   w
+                    UPPressed_LEFTpong = true;
+                    DOWNPressed_LEFTpong = false;
+                }
+                if (event.keyCode == 87) {//d
+                    UPPressed_LEFTpong = false;
+                    DOWNPressed_LEFTpong = true;
+                }
+                if (event.keyCode == 65) {//a
+                    UPPressed_LEFTpong = false;
+                    DOWNPressed_LEFTpong = false;
+                }
+                if (event.keyCode == 73 && game_on == true) {//i
+                    UPPressed_rightpong = false;
+                    DOWNPressed_rightpong = true;
+                }
+                if (event.keyCode == 75) {//k
+                    UPPressed_rightpong = true;
+                    DOWNPressed_rightpong = false;
+                }
+                if (event.keyCode == 76) {//L
+                    UPPressed_rightpong = false;
+                    DOWNPressed_rightpong = false;
+                }
+
+            }
+
+            function get_rnd_color() {
+                var letters = '0123456789ABCDEF';
+                var color = '#';
+                for (var i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
+
+            function getRndInteger(min, max) {
+                return Math.floor(Math.random() * (max - min)) + min;
+            }
+
+            function getRndSpeed() {
+                var speeds = [4, 2, 3, -4, -2, -3];
+                return speeds[Math.floor(Math.random() * speeds.length)];
+            }
+            function updatescore() {
+                document.getElementById("right_score").innerHTML = right_score;
+                document.getElementById("left_score").innerHTML = left_score;
+            }
+            function check_gameover() {
+                if (right_score == 10) {
+                    if (game_on == true) {
+                        alert(" right won! ")
+                        document.location.reload()   
+                    }           
+                                  
+                }
+                else if (left_score == 10) {                  
+                    document.getElementById("start_lable").style.visibility = "visible";
+                    document.getElementById("score").style.visibility = "hidden";
+                    if (game_on == true) {
+                        alert(" left won!")
+                        document.location.reload()
+                    }                                       
+                }
+            }
+
+            adj_screen_width()
+            function adj_screen_width() {               
+                document.getElementById("myCanvas").width = screen.width -20  
+            }
+        </script>
+
+
+    </body>
+</html>
+

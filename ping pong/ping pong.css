@@ -1,0 +1,38 @@
+﻿
+#myCanvas {    
+    cursor:none;
+    border: 2px solid #0026ff;
+    background-color: black;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;    
+    position: fixed;
+}
+p {       
+    cursor: none;
+    position: absolute;
+    font-size: 60px;
+    font-family: 'Electrolize', sans-serif;
+    text-align: center;
+    color: blue;
+    top: 25%;
+    width: 100%;
+}
+#start_lable {
+    animation: mymove 5s infinite;
+}
+/*==================================================*/
+@keyframes mymove {
+    25%{
+        font-size: 60px;
+    }
+    75% {
+        font-size: 45px;
+    }  
+    100% {
+        font-size: 60px;
+    }
+   
+}
